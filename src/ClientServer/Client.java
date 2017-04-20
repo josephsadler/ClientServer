@@ -77,7 +77,10 @@ public class Client extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 sendMessage(messageBox.getText());
-                printToGUI(messageBox.getText());
+                if (messageBox.getText().equalsIgnoreCase("Client: exit")) {
+                    System.exit(0);
+                }
+                messageBox.setText("");
             }
         });
     }//GEN-LAST:event_sendButtonActionPerformed
@@ -134,9 +137,9 @@ public class Client extends javax.swing.JFrame {
             connectToServer();
             chat();
         } catch (EOFException eofE) {
-            printToGUI("\nClient terminated the connection\n");
+            printToGUI("\nClient terminated the connection");
         } catch (IOException ioE) {
-            System.out.println("Error");
+                printToGUI("\nServer has terminated the connection");
         } finally {
             closeConnection();
         }
@@ -157,7 +160,7 @@ public class Client extends javax.swing.JFrame {
         while (!message.equalsIgnoreCase("Server: exit")) {
             try {
                 message = (String) serverInput.readObject();
-                printToGUI("\n" + message);
+                printToGUI(message);
             } catch (ClassNotFoundException ex) {
                 System.out.println("Object not found");
             }
@@ -177,9 +180,10 @@ public class Client extends javax.swing.JFrame {
     
     private void sendMessage(String message) {
         try {
-            serverOutput.writeObject("Client: " + message);
+            message = "Client: " + message;
+            serverOutput.writeObject(message);
             serverOutput.flush();
-            printToGUI("Client: " + message);
+            printToGUI(message);
         } catch (IOException ex) {
             System.out.println("Message could not be sent");
         }

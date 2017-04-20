@@ -75,8 +75,8 @@ public class Server extends javax.swing.JFrame {
     private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                sendMessage(messageBox.getText());
-                printToGUI(messageBox.getText());
+                sendMessage(messageBox.getText());;
+                messageBox.setText("");
             }
         });
     }//GEN-LAST:event_sendButtonActionPerformed
@@ -140,7 +140,7 @@ public class Server extends javax.swing.JFrame {
             }
 
         } catch (IOException ex) {
-            printToGUI("Client ended the connection");
+            //printToGUI("Client ended the connection");
         } finally {
             closeConnection();
         }
@@ -162,7 +162,7 @@ public class Server extends javax.swing.JFrame {
         while (!message.equalsIgnoreCase("Client: exit")) {
             try {
                 message = (String) clientInput.readObject();
-                printToGUI("\n" + message);
+                printToGUI(message);
             } catch (ClassNotFoundException ex) {
                 System.out.println("Error receiving client message");
             }
@@ -174,7 +174,7 @@ public class Server extends javax.swing.JFrame {
             clientInput.close();
             clientOutput.close();
             client.close();
-            printToGUI("\nConnection has ended\n\n");
+            printToGUI("\nConnection has ended");
         } catch (IOException ex) {
             System.out.println("Error closing connection");
         }
@@ -182,11 +182,12 @@ public class Server extends javax.swing.JFrame {
 
     private void sendMessage(String message) {
         try {
-            clientOutput.writeObject("Server: " + message);
+            message = "Server: " + message;
+            clientOutput.writeObject(message);
             clientOutput.flush();
-            printToGUI("Server: " + message);
+            printToGUI(message);
         } catch (IOException ex) {
-            printToGUI("Error sending message");
+            printToGUI("Error sending message, connection is not established");
         }
     }
     
