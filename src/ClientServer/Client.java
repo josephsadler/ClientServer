@@ -51,11 +51,11 @@ public class Client extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(13, 13, 13)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(messageBox, javax.swing.GroupLayout.PREFERRED_SIZE, 521, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(messageBox, javax.swing.GroupLayout.PREFERRED_SIZE, 497, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(sendButton, javax.swing.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1))
+                        .addComponent(sendButton, javax.swing.GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -64,10 +64,10 @@ public class Client extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 439, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(messageBox)
-                    .addComponent(sendButton, javax.swing.GroupLayout.DEFAULT_SIZE, 64, Short.MAX_VALUE))
-                .addContainerGap())
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(sendButton)
+                    .addComponent(messageBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -77,7 +77,7 @@ public class Client extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 sendMessage(messageBox.getText());
-                if (messageBox.getText().equalsIgnoreCase("Client: exit")) {
+                if (messageBox.getText().equalsIgnoreCase("exit")) {
                     System.exit(0);
                 }
                 messageBox.setText("");
@@ -134,21 +134,26 @@ public class Client extends javax.swing.JFrame {
 
     public void startClient() {
         try {
-            connectToServer();
-            chat();
+            while (true) {
+                connectToServer();
+                chat();
+            }
+
         } catch (EOFException eofE) {
             printToGUI("\nClient terminated the connection");
         } catch (IOException ioE) {
-                printToGUI("\nServer has terminated the connection");
+            printToGUI("\nServer has terminated the connection");
         } finally {
             closeConnection();
         }
     }
 
     public void connectToServer() throws IOException {
+        messageBox.setEditable(false);
         printToGUI("Attempting to connect to the server");
         client = new Socket(serverIP, Server.PORT);
-        printToGUI("Now connected to " + client.getInetAddress().getHostName());
+        printToGUI("Now connected to " + client.getInetAddress().getHostName() + "\n");
+        messageBox.setEditable(true);
 
         serverOutput = new ObjectOutputStream(client.getOutputStream());
         serverOutput.flush();
@@ -164,8 +169,8 @@ public class Client extends javax.swing.JFrame {
             } catch (ClassNotFoundException ex) {
                 System.out.println("Object not found");
             }
-
         }
+        printToGUI("\nServer has ended the connection");
     }
 
     public void closeConnection() {
@@ -177,7 +182,7 @@ public class Client extends javax.swing.JFrame {
             System.out.println("Error closing connection");
         }
     }
-    
+
     private void sendMessage(String message) {
         try {
             message = "Client: " + message;
@@ -185,10 +190,10 @@ public class Client extends javax.swing.JFrame {
             serverOutput.flush();
             printToGUI(message);
         } catch (IOException ex) {
-            System.out.println("Message could not be sent");
+            printToGUI("Error sending message, connection is not established");
         }
     }
-    
+
     private void printToGUI(String message) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
