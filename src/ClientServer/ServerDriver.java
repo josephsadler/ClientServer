@@ -1,10 +1,11 @@
 package ClientServer;
 
-public class ClientServerDriver {
+public class ServerDriver {
 
     public static void main(String[] args) {
-        ServerGUI server = new ServerGUI();
+        Server server = new Server();
         server.setVisible(true);
+        
         server.startServer();
     }
 
