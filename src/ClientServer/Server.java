@@ -76,13 +76,16 @@ public class Server extends javax.swing.JFrame {
     private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                sendMessage(messageBox.getText());
-                if (messageBox.getText().equalsIgnoreCase("exit")) {
-                    System.exit(0);
+                if (!messageBox.getText().equals("")) {
+                    sendMessage(messageBox.getText());
+                    if (messageBox.getText().equalsIgnoreCase("exit")) {
+                        System.exit(0);
+                    }
+                    messageBox.setText("");
                 }
-                messageBox.setText("");
             }
         });
+
     }//GEN-LAST:event_sendButtonActionPerformed
 
     /**
@@ -156,11 +159,11 @@ public class Server extends javax.swing.JFrame {
         messageBox.setEditable(false);
         printToGUI("Waiting for a client to connect...");
         client = server.accept();
-        
+
         //Connection found
         printToGUI("Now connected to " + client.getInetAddress().getHostName() + "\n");
         messageBox.setEditable(true);
-        
+
         //Initialize variables for client input/output streams
         clientInput = new ObjectInputStream(client.getInputStream());
         clientOutput = new ObjectOutputStream(client.getOutputStream());
@@ -180,6 +183,7 @@ public class Server extends javax.swing.JFrame {
     }
 
     public void closeConnection() {
+        messageBox.setEditable(false);
         try {
             clientInput.close();
             clientOutput.close();

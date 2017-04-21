@@ -10,8 +10,10 @@ public class Client extends javax.swing.JFrame {
     /**
      * Creates new form ClientGUI
      */
-    public Client() {
+    public Client(String host) {
         initComponents();
+        messageBox.setEditable(false);
+        serverIP = host;
     }
 
     /**
@@ -76,11 +78,13 @@ public class Client extends javax.swing.JFrame {
     private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                sendMessage(messageBox.getText());
-                if (messageBox.getText().equalsIgnoreCase("exit")) {
-                    System.exit(0);
+                if (!messageBox.getText().equals("")) {
+                    sendMessage(messageBox.getText());
+                    if (messageBox.getText().equalsIgnoreCase("exit")) {
+                        System.exit(0);
+                    }
+                    messageBox.setText("");
                 }
-                messageBox.setText("");
             }
         });
     }//GEN-LAST:event_sendButtonActionPerformed
@@ -88,38 +92,38 @@ public class Client extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Client.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Client.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Client.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Client.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Client().setVisible(true);
-            }
-        });
-    }
+//    public static void main(String args[]) {
+//        /* Set the Nimbus look and feel */
+//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+//         */
+//        try {
+//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+//                if ("Nimbus".equals(info.getName())) {
+//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//            }
+//        } catch (ClassNotFoundException ex) {
+//            java.util.logging.Logger.getLogger(Client.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (InstantiationException ex) {
+//            java.util.logging.Logger.getLogger(Client.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (IllegalAccessException ex) {
+//            java.util.logging.Logger.getLogger(Client.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+//            java.util.logging.Logger.getLogger(Client.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        }
+//        //</editor-fold>
+//        //</editor-fold>
+//
+//        /* Create and display the form */
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                new Client().setVisible(true);
+//            }
+//        });
+//    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea clientChatWindow;
@@ -130,29 +134,27 @@ public class Client extends javax.swing.JFrame {
     private Socket client;
     private ObjectOutputStream serverOutput;
     private ObjectInputStream serverInput;
-    private final String serverIP = "127.0.0.1"; //Loopback address
+    private String serverIP = "127.0.0.1"; //Default to loopback address
 
     public void startClient() {
         try {
-            while (true) {
-                connectToServer();
-                chat();
-            }
+            connectToServer();
+            chat();
         } catch (EOFException eofE) {
             printToGUI("Client terminated the connection");
         } catch (IOException ioE) {
-            printToGUI("Server has terminated the connection");
+            printToGUI("Server has shutdown");
         } finally {
             closeConnection();
         }
     }
 
     public void connectToServer() throws IOException {
-        messageBox.setEditable(false);
+        
         printToGUI("Attempting to connect to the server...");
-        client = new Socket(serverIP, Server.PORT);
+        client = new Socket(InetAddress.getByName(serverIP), Server.PORT);
         printToGUI("Now connected to " + client.getInetAddress().getHostName() + "\n");
-        messageBox.setEditable(true);
+        
 
         serverOutput = new ObjectOutputStream(client.getOutputStream());
         serverOutput.flush();
@@ -160,6 +162,7 @@ public class Client extends javax.swing.JFrame {
     }
 
     public void chat() throws IOException {
+        messageBox.setEditable(true);
         String message = "";
         while (!message.equalsIgnoreCase("Server: exit")) {
             try {
@@ -169,13 +172,15 @@ public class Client extends javax.swing.JFrame {
                 System.out.println("Object not found");
             }
         }
+        throw new IOException();
     }
 
     public void closeConnection() {
+        messageBox.setEditable(false);
         try {
             serverInput.close();
             serverOutput.close();
-            client.close();
+            client.close();      
         } catch (IOException ex) {
             System.out.println("Error closing connection");
         }
