@@ -2,6 +2,8 @@ package ClientServer;
 
 import java.io.*;
 import java.net.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Server extends javax.swing.JFrame {
 
@@ -132,28 +134,34 @@ public class Server extends javax.swing.JFrame {
     private ObjectOutputStream clientOutput;
 
     public void startServer() {
-
         try {
             server = new ServerSocket(PORT);
-
             while (true) {
-                createConnection();
-                chat();
+                try {
+                    createConnection();
+                    chat();
+                } catch (EOFException e) {
+                    printToGUI("Server ended the connection");
+                } finally {
+                    closeConnection();
+                }
             }
-
         } catch (IOException ex) {
             printToGUI("Client ended the connection");
-        } finally {
-            closeConnection();
         }
     }
 
     public void createConnection() throws IOException {
+        //Wait for a client to connect to the server
         messageBox.setEditable(false);
         printToGUI("Waiting for a client to connect...");
         client = server.accept();
+        
+        //Connection found
         printToGUI("Now connected to " + client.getInetAddress().getHostName() + "\n");
         messageBox.setEditable(true);
+        
+        //Initialize variables for client input/output streams
         clientInput = new ObjectInputStream(client.getInputStream());
         clientOutput = new ObjectOutputStream(client.getOutputStream());
         clientOutput.flush();
@@ -169,7 +177,6 @@ public class Server extends javax.swing.JFrame {
                 System.out.println("Error receiving client message");
             }
         }
-        printToGUI("\nClient has ended the connection");
     }
 
     public void closeConnection() {
@@ -196,9 +203,9 @@ public class Server extends javax.swing.JFrame {
     private void printToGUI(String message) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                serverChatWindow.append("\n" + message);
+                String timeStamp = new SimpleDateFormat("hh:mm").format(new Date());
+                serverChatWindow.append("\n" + timeStamp + " " + message);
             }
         });
-
     }
 }

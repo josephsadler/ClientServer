@@ -2,8 +2,8 @@ package ClientServer;
 
 import java.io.*;
 import java.net.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Client extends javax.swing.JFrame {
 
@@ -138,11 +138,10 @@ public class Client extends javax.swing.JFrame {
                 connectToServer();
                 chat();
             }
-
         } catch (EOFException eofE) {
-            printToGUI("\nClient terminated the connection");
+            printToGUI("Client terminated the connection");
         } catch (IOException ioE) {
-            printToGUI("\nServer has terminated the connection");
+            printToGUI("Server has terminated the connection");
         } finally {
             closeConnection();
         }
@@ -150,7 +149,7 @@ public class Client extends javax.swing.JFrame {
 
     public void connectToServer() throws IOException {
         messageBox.setEditable(false);
-        printToGUI("Attempting to connect to the server");
+        printToGUI("Attempting to connect to the server...");
         client = new Socket(serverIP, Server.PORT);
         printToGUI("Now connected to " + client.getInetAddress().getHostName() + "\n");
         messageBox.setEditable(true);
@@ -170,7 +169,6 @@ public class Client extends javax.swing.JFrame {
                 System.out.println("Object not found");
             }
         }
-        printToGUI("\nServer has ended the connection");
     }
 
     public void closeConnection() {
@@ -197,7 +195,8 @@ public class Client extends javax.swing.JFrame {
     private void printToGUI(String message) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                clientChatWindow.append("\n" + message);
+                String timeStamp = new SimpleDateFormat("hh:mm").format(new Date());
+                clientChatWindow.append("\n" + timeStamp + " " + message);
             }
         });
     }
