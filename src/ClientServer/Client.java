@@ -153,7 +153,7 @@ public class Client extends javax.swing.JFrame {
         
         printToGUI("Attempting to connect to the server...");
         client = new Socket(InetAddress.getByName(serverIP), Server.PORT);
-        printToGUI("Now connected to " + client.getInetAddress().getHostName() + "\n");
+        printToGUI("Now connected to " + InetAddress.getByName(client.getInetAddress().getHostName()) + "\n");
         
 
         serverOutput = new ObjectOutputStream(client.getOutputStream());

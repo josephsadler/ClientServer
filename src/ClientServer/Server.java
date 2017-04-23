@@ -146,6 +146,7 @@ public class Server extends javax.swing.JFrame {
                 } catch (EOFException e) {
                     printToGUI("Server ended the connection");
                 } finally {
+                    printToGUI("Client has ended the connection");
                     closeConnection();
                 }
             }
@@ -161,7 +162,7 @@ public class Server extends javax.swing.JFrame {
         client = server.accept();
 
         //Connection found
-        printToGUI("Now connected to " + client.getInetAddress().getHostName() + "\n");
+        printToGUI("Now connected to " + InetAddress.getByName(client.getInetAddress().getHostName()) + "\n");
         messageBox.setEditable(true);
 
         //Initialize variables for client input/output streams
